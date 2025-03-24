@@ -18,7 +18,12 @@ public class Verificacion implements Runnable{
     }
     private void verificar(){
         if(reserva.getAsientosConfirmados().size() == 0){
-            System.out.println("No hay para verficar");
+            System.out.println("No hay para verficar " + Thread.currentThread().getName());
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             semaphore.release();
             return;
         }

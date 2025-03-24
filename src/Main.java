@@ -39,6 +39,9 @@ public class Main {
         System.out.println("------------------Termino Pago------------");
         endChecked.await();
         System.out.println("------------------Termino Checked------------");
+        endVerificacion.await();
+        System.out.println("------------------Termino Verificacion------------");
+
 ////////////////// ver si los hilos estan vivos simultaneamente ///////////////////
         long fin = System.currentTimeMillis();
         System.out.println("-----------------Tiempo de ejecución: " + (fin - inicio) + " ms------------------");
