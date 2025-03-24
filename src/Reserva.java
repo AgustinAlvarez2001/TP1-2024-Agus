@@ -43,9 +43,9 @@ public class Reserva implements Runnable{
         return asientosCancelados;
     }
     public synchronized ArrayList<Asiento> getAsientosConfirmados() {
-        lockConfirmados.lock();
+        //lockConfirmados.lock();
         return asientosConfirmados;  ///uso la funcion desde Checked y Verificacion, hay conflicto en .size()
-        lockConfirmados.unlock(); cuakkkk
+        //lockConfirmados.unlock(); //cuakkkk
     }
     public synchronized ArrayList<Asiento> getAsientosVerificados() { return asientosVerificados;  }
     private void setAsientoPendiente(Asiento asientosPendientes) {
