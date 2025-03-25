@@ -8,12 +8,16 @@ public class Checked implements Runnable {
     private CountDownLatch endChecked;
     private CountDownLatch endPagos;
     private Object lockAsientoPago;
-    private Semaphore semaphore = new Semaphore(1);
-    public Checked(Reserva reserva, CountDownLatch endChecked, Object lockAsientoPago, CountDownLatch endPagos ){
+    //private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore;
+//    public Checked(Reserva reserva, CountDownLatch endChecked, Object lockAsientoPago, CountDownLatch endPagos ){
+    public Checked(Reserva reserva, CountDownLatch endChecked, Object lockAsientoPago, CountDownLatch endPagos, Semaphore semaphore ){
         this.reserva = reserva;
         this.endChecked = endChecked;
         this.lockAsientoPago = lockAsientoPago;
         this.endPagos = endPagos;
+
+        this.semaphore = semaphore;
     }
     public String getName(){
         return "Checked";
@@ -43,7 +47,7 @@ public class Checked implements Runnable {
     public void run(){
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(30);
+                TimeUnit.MILLISECONDS.sleep(150);
                 semaphore.acquire();
                 checkear();
             } catch (InterruptedException e) {

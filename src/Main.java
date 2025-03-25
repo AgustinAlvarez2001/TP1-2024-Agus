@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -27,10 +28,12 @@ public class Main {
         Pago pago = new Pago(reserva, lockAsientoPendientes, lockAsientoPago, endPagos); //lockAsientoPago
         createThreads pagos = new createThreads(2, pago, pago.getName());
 
-        Checked checked = new Checked(reserva, endChecked, lockAsientoPago, endPagos);
+        Semaphore semaphore = new Semaphore(1); ///para checked y verificacion
+
+        Checked checked = new Checked(reserva, endChecked, lockAsientoPago, endPagos, semaphore);
         createThreads checkeds = new createThreads(3, checked, checked.getName());
 
-        Verificacion verificacion = new Verificacion(reserva, endVerificacion, endChecked);
+        Verificacion verificacion = new Verificacion(reserva, endVerificacion, endChecked, semaphore);
         createThreads verificaciones = new createThreads(2,verificacion, verificacion.getName());
 
         endReservas.await();
@@ -48,6 +51,7 @@ public class Main {
         System.out.println("Asientos Pendientes: " + reserva.getAsientosPendientes().size());
         System.out.println("Asientos Confirmados: " + reserva.getAsientosConfirmados().size());
         System.out.println("Asientos Cancelados: " + reserva.getAsientosCancelados().size());
+        System.out.println("Asientos Verificados: " + reserva.getAsientosVerificados().size());
         System.out.println(matriz);
 
 //        for (int i=0; i<reserva.getAsientosConfirmados().size(); i+=13){

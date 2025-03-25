@@ -74,7 +74,7 @@ public class Reserva implements Runnable{
             int random = ThreadLocalRandom.current().nextInt(0, matriz.getCantAsientos());
             try {
                 //Long duration = (long)(Math.random()*35);
-                TimeUnit.MILLISECONDS.sleep(15);
+                TimeUnit.MILLISECONDS.sleep(80);
                 semaphore.acquire();
                 //seccion critica
                 if (matriz.getMatriz().get(random).getStatus() == estadoAsiento.LIBRE) {   //getStatus es synchronized

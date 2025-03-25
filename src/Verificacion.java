@@ -7,11 +7,15 @@ public class Verificacion implements Runnable{
     private Reserva reserva;
     private CountDownLatch endVerificacion;
     private CountDownLatch endChecked;
-    private Semaphore semaphore = new Semaphore(1);
-    public Verificacion(Reserva reserva, CountDownLatch endVerificacion, CountDownLatch endChecked){
+    //private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphore;
+//    public Verificacion(Reserva reserva, CountDownLatch endVerificacion, CountDownLatch endChecked){
+    public Verificacion(Reserva reserva, CountDownLatch endVerificacion, CountDownLatch endChecked, Semaphore semaphore){
         this.reserva = reserva;
         this.endVerificacion = endVerificacion;
         this.endChecked = endChecked;
+
+        this.semaphore = semaphore;
     }
     public String getName(){
         return "Verificación";
@@ -19,12 +23,12 @@ public class Verificacion implements Runnable{
     private void verificar(){
         if(reserva.getAsientosConfirmados().size() == 0){
             System.out.println("No hay para verficar " + Thread.currentThread().getName());
+            semaphore.release();
             try {
-                Thread.sleep(20);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            semaphore.release();
             return;
         }
         int random = ThreadLocalRandom.current().nextInt(0, reserva.getAsientosConfirmados().size());

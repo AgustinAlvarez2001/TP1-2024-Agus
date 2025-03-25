@@ -27,7 +27,7 @@ public class Pago implements Runnable{
         try {
             //seccion critica
             semaphore.acquire();
-            TimeUnit.MILLISECONDS.sleep(30);
+            TimeUnit.MILLISECONDS.sleep(150);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
