@@ -7,7 +7,8 @@ public class Main {
         CountDownLatch endReservas = new CountDownLatch(3);
         CountDownLatch endPagos = new CountDownLatch(2);
         CountDownLatch endChecked = new CountDownLatch(3);
-        CountDownLatch endVerificacion = new CountDownLatch(2);
+        CountDownLatch endVerificacion = new CountDownLatch(1); ///uno porque el otro hilo va quedar dormido en la ultima iteracion, y cuando se despierta sale
+        CountDownLatch endMain = new CountDownLatch(1);
 
         long inicio = System.currentTimeMillis();
 
@@ -22,7 +23,10 @@ public class Main {
         Reserva reserva = new Reserva(matriz, endReservas, lockAsientoPendientes);
         createThreads reservas = new createThreads(3, reserva, reserva.getName());
         //Hilos para confirmar/cancelar reservas
-//
+
+        //Genero un hilo logger porque se enojan los otros si uso el hilo Main
+        Logger logger = new Logger(reserva,endMain,inicio);
+        createThreads hiloLogger = new createThreads(1,logger,logger.getName());
 
         //Pago pago = new Pago(matriz, reserva, lockAsientoPendientes, endPagos);
         Pago pago = new Pago(reserva, lockAsientoPendientes, lockAsientoPago, endPagos); //lockAsientoPago
@@ -44,6 +48,7 @@ public class Main {
         System.out.println("------------------Termino Checked------------");
         endVerificacion.await();
         System.out.println("------------------Termino Verificacion------------");
+        endMain.countDown();
 
 ////////////////// ver si los hilos estan vivos simultaneamente ///////////////////
         long fin = System.currentTimeMillis();

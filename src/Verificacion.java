@@ -25,7 +25,7 @@ public class Verificacion implements Runnable{
             System.out.println("No hay para verficar " + Thread.currentThread().getName());
             semaphore.release();
             try {
-                Thread.sleep(3000);
+                Thread.sleep(120);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -43,7 +43,7 @@ public class Verificacion implements Runnable{
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(35);
+                TimeUnit.MILLISECONDS.sleep(380);
                 semaphore.acquire();
                 verificar();
             } catch (InterruptedException e) {
