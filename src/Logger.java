@@ -33,7 +33,7 @@ public class Logger implements Runnable {
 
             escribirLog(string, false);
             if (endMain.getCount() == 0 ){
-                System.out.println("salgo del while de Logger");
+                //salgo del while de Logger
                 break;
             }
             try {
@@ -44,11 +44,8 @@ public class Logger implements Runnable {
         }
         long fin = System.currentTimeMillis();
         escribirLog( "\n--------------Tiempo de ejecución: " + (fin - inicio) + " ms--------------", false);
-
     }
-    public String getName(){
-        return "Logger";
-    }
+    public String getName(){ return "Logger"; }
     @Override
     public void run() {
         Registrar();

@@ -7,16 +7,11 @@ public class Checked implements Runnable {
     private Reserva reserva;
     private CountDownLatch endChecked;
     private CountDownLatch endPagos;
-    private Object lockAsientoPago;
-    //private Semaphore semaphore = new Semaphore(1);
     private Semaphore semaphore;
-//    public Checked(Reserva reserva, CountDownLatch endChecked, Object lockAsientoPago, CountDownLatch endPagos ){
-    public Checked(Reserva reserva, CountDownLatch endChecked, Object lockAsientoPago, CountDownLatch endPagos, Semaphore semaphore ){
+    public Checked(Reserva reserva, CountDownLatch endChecked, CountDownLatch endPagos, Semaphore semaphore ){
         this.reserva = reserva;
         this.endChecked = endChecked;
-        this.lockAsientoPago = lockAsientoPago;
         this.endPagos = endPagos;
-
         this.semaphore = semaphore;
     }
     public String getName(){
@@ -47,7 +42,7 @@ public class Checked implements Runnable {
     public void run(){
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(150);
+                TimeUnit.MILLISECONDS.sleep(130);
                 semaphore.acquire();
                 checkear();
             } catch (InterruptedException e) {
@@ -57,7 +52,6 @@ public class Checked implements Runnable {
             if(endPagos.getCount() == 0){
                 if(reserva.getAsientosConfirmados().stream().allMatch(Asiento::getChecked)){
                     ///verifica que todos los checked sean iguales (true) para salir del while
-                    System.out.println("SALE Checked: " + Thread.currentThread().getName());
                     break;
                 }
             }
@@ -65,39 +59,3 @@ public class Checked implements Runnable {
         endChecked.countDown();
     }
 }
-
-
-
-//    public void run(){
-//        while (true) { // mientra asientos verificados no este vacio
-//            synchronized (lockAsientoPago) {
-//                try {
-//                    TimeUnit.MILLISECONDS.sleep(30);
-//                    if (endPagos.getCount() != 0){   //si o si el proceso de Pago va a terminar antes que el de Checked
-//                        System.out.println("Entra Checked: "+ Thread.currentThread().getName());
-////                        semaphore.acquire();
-////                        checkear();
-//                        lockAsientoPago.wait();   //para poner en espera los hilos de Checked
-//                        semaphore.acquire();
-//                        checkear();
-//                    }
-//                    else {
-//                        lockAsientoPago.notifyAll();        //despierta todos los hilos post endPagos
-//                        if(reserva.getAsientosVerificados().stream().allMatch(Asiento::getChecked)){
-//                        ///verifica que todos los checked sean iguales (true) para salir del while
-//                            System.out.println("SALE Checked: " + Thread.currentThread().getName());
-//                            break;
-//                        }
-//                        semaphore.acquire();
-//                        checkear();
-//                    }
-////                    semaphore.acquire();
-////                    checkear();
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//        }
-//        endChecked.countDown();
-//    }
-//}

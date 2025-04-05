@@ -7,19 +7,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Pago implements Runnable{
     private Reserva reserva;
     private Object lockAsientosPendientes;
-    private Object lockAsientoPago;
     private CountDownLatch endPagos;
     private int contador;  ////cantidad de asientos
     private Semaphore semaphore = new Semaphore(1);
     private static final AtomicInteger hilosEnEjecucion = new AtomicInteger(0);
 
-    public Pago(Reserva reserva, Object lockAsientosPendientes, Object lockAsientoPago, CountDownLatch endPagos){
+    public Pago(Reserva reserva, Object lockAsientosPendientes, CountDownLatch endPagos){
         //lockAsientosPendientes--> objeto para bloquear/desbloquear
         //endPagos para saber cuando termina el proceso de pago en el main
-        //this.matriz = matriz;
         this.reserva = reserva;
         this.lockAsientosPendientes = lockAsientosPendientes;
-        this.lockAsientoPago = lockAsientoPago;
         this.endPagos = endPagos;
         this.contador = reserva.getMatriz().size();
     }
@@ -27,7 +24,7 @@ public class Pago implements Runnable{
         try {
             //seccion critica
             semaphore.acquire();
-            TimeUnit.MILLISECONDS.sleep(150);
+            TimeUnit.MILLISECONDS.sleep(130);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -36,9 +33,6 @@ public class Pago implements Runnable{
         if (pagoRandom) {
             reserva.setAsientoConfirmado(reserva.getAsientosPendientes().remove(0));
             //borro el asiento de asientospendientes
-//            synchronized (lockAsientoPago) {
-//                lockAsientoPago.notify();   //para despertar los hilos de Checked
-//            }
             semaphore.release();
         } else {
             int indiceDelAsiento = reserva.getMatriz().indexOf(reserva.getAsientosPendientes().remove(0));
@@ -51,9 +45,6 @@ public class Pago implements Runnable{
         }
     }
     public String getName(){ return "Pago"; }
-
-    public int getContador() { return contador; }
-
     @Override
     public void run() {
         hilosEnEjecucion.getAndIncrement();
@@ -69,8 +60,8 @@ public class Pago implements Runnable{
                 }
                 pagar();
                 contador--;
-                if (contador <= (hilosEnEjecucion.get()-1)) {   //para que salga del while cuando no haya mas asientos pendientes y finalice el run
-                    System.out.println("////////////-- "+ Thread.currentThread().getName() +" sale de Pago--//////////////");
+                if (contador <= (hilosEnEjecucion.get()-1)) {
+                    //para que salga del while cuando no haya mas asientos pendientes y finalice el run
                     break;
                 }
             }

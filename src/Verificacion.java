@@ -7,14 +7,11 @@ public class Verificacion implements Runnable{
     private Reserva reserva;
     private CountDownLatch endVerificacion;
     private CountDownLatch endChecked;
-    //private Semaphore semaphore = new Semaphore(1);
     private Semaphore semaphore;
-//    public Verificacion(Reserva reserva, CountDownLatch endVerificacion, CountDownLatch endChecked){
     public Verificacion(Reserva reserva, CountDownLatch endVerificacion, CountDownLatch endChecked, Semaphore semaphore){
         this.reserva = reserva;
         this.endVerificacion = endVerificacion;
         this.endChecked = endChecked;
-
         this.semaphore = semaphore;
     }
     public String getName(){
@@ -22,7 +19,7 @@ public class Verificacion implements Runnable{
     }
     private void verificar(){
         if(reserva.getAsientosConfirmados().size() == 0){
-            System.out.println("No hay para verficar " + Thread.currentThread().getName());
+            //No hay para verficar
             semaphore.release();
             try {
                 Thread.sleep(120);
@@ -33,8 +30,7 @@ public class Verificacion implements Runnable{
         }
         int random = ThreadLocalRandom.current().nextInt(0, reserva.getAsientosConfirmados().size());
         if(reserva.getAsientosConfirmados().get(random).getChecked()){
-//            Asiento newAsientoVerificado = reserva.getAsientosConfirmados().remove(random);
-//            reserva.setAsientoVerificado(newAsientoVerificado);
+            //borro reserva de asientosConfirmados y se la seteo a asientosVerificados
             reserva.setAsientoVerificado(reserva.getAsientosConfirmados().remove(random));
         }
         semaphore.release();
@@ -43,7 +39,7 @@ public class Verificacion implements Runnable{
     public void run() {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(380);
+                TimeUnit.MILLISECONDS.sleep(350);
                 semaphore.acquire();
                 verificar();
             } catch (InterruptedException e) {
@@ -53,7 +49,6 @@ public class Verificacion implements Runnable{
             if(endChecked.getCount() == 0){
                 if(reserva.getAsientosConfirmados().isEmpty()){
                     ///verifica que todos los checked sean iguales (true) para salir del while
-                    System.out.println("SALE Verificacion: " + Thread.currentThread().getName());
                     break;
                 }
             }

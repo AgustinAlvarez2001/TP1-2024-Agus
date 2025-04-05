@@ -34,36 +34,18 @@ public class Reserva implements Runnable{
     public ArrayList<Asiento> getMatriz() {
         return matriz.getMatriz();
     }
-
-    public synchronized int getRecorrido() { return recorrido; }//funcion solo para ver por Main
-
-
     public synchronized ArrayList<Asiento> getAsientosPendientes() { return asientosPendientes; }
     public synchronized ArrayList<Asiento> getAsientosCancelados() {
         return asientosCancelados;
     }
-    public synchronized ArrayList<Asiento> getAsientosConfirmados() {
-        //lockConfirmados.lock();
-        return asientosConfirmados;  ///uso la funcion desde Checked y Verificacion, hay conflicto en .size()
-        //lockConfirmados.unlock(); //cuakkkk
-    }
+    public synchronized ArrayList<Asiento> getAsientosConfirmados() { return asientosConfirmados; }
     public synchronized ArrayList<Asiento> getAsientosVerificados() { return asientosVerificados;  }
     private void setAsientoPendiente(Asiento asientosPendientes) {
         // privado porque se usa solo cuando se ejecutan los hilos de esta clase
         this.asientosPendientes.add(asientosPendientes);
     }
-//    private Lock lockCanceladas = new ReentrantLock(); /// 'das' porque hago referencia a las reservas
-    private Lock lockConfirmados= new ReentrantLock();
-    public void setAsientoCancelado(Asiento asientoCancelado) {
-        //lockCanceladas.lock();                        //para que no se pisen
-        this.asientosCancelados.add(asientoCancelado);
-        //lockCanceladas.unlock();
-    }
-    public void setAsientoConfirmado(Asiento asientoConfirmado) {
-        //lockVerificadas.lock();
-        this.asientosConfirmados.add(asientoConfirmado);
-        //lockVerificadas.unlock();
-    }
+    public void setAsientoCancelado(Asiento asientoCancelado) { this.asientosCancelados.add(asientoCancelado); }
+    public void setAsientoConfirmado(Asiento asientoConfirmado) { this.asientosConfirmados.add(asientoConfirmado); }
     public void setAsientoVerificado(Asiento asientoVerificado) {
         this.asientosVerificados.add(asientoVerificado);
     }
@@ -73,8 +55,7 @@ public class Reserva implements Runnable{
         while (recorrido < matriz.getCantAsientos()){
             int random = ThreadLocalRandom.current().nextInt(0, matriz.getCantAsientos());
             try {
-                //Long duration = (long)(Math.random()*35);
-                TimeUnit.MILLISECONDS.sleep(80);
+                TimeUnit.MILLISECONDS.sleep(50);
                 semaphore.acquire();
                 //seccion critica
                 if (matriz.getMatriz().get(random).getStatus() == estadoAsiento.LIBRE) {   //getStatus es synchronized
@@ -91,6 +72,6 @@ public class Reserva implements Runnable{
                 throw new RuntimeException(e);
             }
         }
-        endResevas.countDown();
+//        endResevas.countDown();
     }
 }

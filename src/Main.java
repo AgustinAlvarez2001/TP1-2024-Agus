@@ -4,87 +4,37 @@ import java.util.concurrent.Semaphore;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        CountDownLatch endReservas = new CountDownLatch(3);
+
+        long inicio = System.currentTimeMillis();  //inicio del programa
+
+        CountDownLatch endReservas = new CountDownLatch(3); // No hace falta
         CountDownLatch endPagos = new CountDownLatch(2);
         CountDownLatch endChecked = new CountDownLatch(3);
         CountDownLatch endVerificacion = new CountDownLatch(1); ///uno porque el otro hilo va quedar dormido en la ultima iteracion, y cuando se despierta sale
         CountDownLatch endMain = new CountDownLatch(1);
+        Semaphore semaphore = new Semaphore(1); ///para checked y verificacion
+        Object lockAsientoPendientes = new Object(); //para Reserva y Pago
 
-        long inicio = System.currentTimeMillis();
-
-        Object lockAsientoPendientes = new Object();
-        Object lockAsientoPago = new Object();    ///no se usa
-        //Matriz de Asientos
         int cantAsientos = 186;
-        matrizDeAsientos matriz = new matrizDeAsientos(cantAsientos);
+        matrizDeAsientos matriz = new matrizDeAsientos(cantAsientos); //Matriz de Asientos
 
-        //Thread.sleep(5000);
-        //Hilos para reservar Asientos en la Matriz
         Reserva reserva = new Reserva(matriz, endReservas, lockAsientoPendientes);
-        createThreads reservas = new createThreads(3, reserva, reserva.getName());
-        //Hilos para confirmar/cancelar reservas
+        createThreads reservas = new createThreads(3, reserva, reserva.getName()); //Hilos para reservar Asientos en la Matriz
 
-        //Genero un hilo logger porque se enojan los otros si uso el hilo Main
         Logger logger = new Logger(reserva,endMain,inicio);
         createThreads hiloLogger = new createThreads(1,logger,logger.getName());
 
-        //Pago pago = new Pago(matriz, reserva, lockAsientoPendientes, endPagos);
-        Pago pago = new Pago(reserva, lockAsientoPendientes, lockAsientoPago, endPagos); //lockAsientoPago
+//        endReservas.await();
+        Pago pago = new Pago(reserva, lockAsientoPendientes, endPagos); //Hilos para confirmar/cancelar reservas
         createThreads pagos = new createThreads(2, pago, pago.getName());
-
-        Semaphore semaphore = new Semaphore(1); ///para checked y verificacion
-
-        Checked checked = new Checked(reserva, endChecked, lockAsientoPago, endPagos, semaphore);
-        createThreads checkeds = new createThreads(3, checked, checked.getName());
-
+//        endPagos.await();
+        Checked checked = new Checked(reserva, endChecked, endPagos, semaphore);
+        createThreads checkeds = new createThreads(3, checked, checked.getName()); //Hilos para hacer el checked
+//        endChecked.await();
         Verificacion verificacion = new Verificacion(reserva, endVerificacion, endChecked, semaphore);
-        createThreads verificaciones = new createThreads(2,verificacion, verificacion.getName());
+        createThreads verificaciones = new createThreads(2,verificacion, verificacion.getName()); //Hilos para hacer las verificaciones
 
-        endReservas.await();
-        System.out.println("------------------Termino Reserva------------");
-        endPagos.await();
-        System.out.println("------------------Termino Pago------------");
-        endChecked.await();
-        System.out.println("------------------Termino Checked------------");
         endVerificacion.await();
-        System.out.println("------------------Termino Verificacion------------");
-        endMain.countDown();
-
-////////////////// ver si los hilos estan vivos simultaneamente ///////////////////
-        long fin = System.currentTimeMillis();
-        System.out.println("-----------------Tiempo de ejecución: " + (fin - inicio) + " ms------------------");
-        System.out.println("Asientos Pendientes: " + reserva.getAsientosPendientes().size());
-        System.out.println("Asientos Confirmados: " + reserva.getAsientosConfirmados().size());
-        System.out.println("Asientos Cancelados: " + reserva.getAsientosCancelados().size());
-        System.out.println("Asientos Verificados: " + reserva.getAsientosVerificados().size());
-        System.out.println(matriz);
-
-//        for (int i=0; i<reserva.getAsientosConfirmados().size(); i+=13){
-//            System.out.println(reserva.getAsientosConfirmados().get(i).getChecked());
-//        }
-//        for (int i=0; i<reserva.getAsientosCancelados().size(); i+=2){
-//            System.out.println(reserva.getAsientosCancelados().get(i).getChecked());
-//        }
-
-
+        endMain.countDown(); //para salir del while del Logger
     }
 }
-//        Thread.sleep(5000);
-//        System.out.println(reserva.getAsientosPendientes().size());
-//        System.out.println(reserva.getRecorrido());
-//        for (int i=0; i< matrix.getCantAsientos(); i++){
-//            String nameAsientos = reserva.getAsientosPendientes().get(i).getNameAsiento();
-//            System.out.println(nameAsientos);
-//        }
-//        System.out.println(matrix.toString());
-//        System.out.println(reserva.getRecorrido());
-//        Thread.sleep(1000);
-//        System.out.println(matrix.toString());
-//        System.out.println(reserva.getRecorrido());
-//        Thread.sleep(2000);
-//        System.out.println(matrix.toString());
-//        System.out.println(reserva.getRecorrido());
-//
-
-//        System.out.println(reserva.getAsientosPendientes().size());
-//        System.out.println(reserva.getRecorrido());
